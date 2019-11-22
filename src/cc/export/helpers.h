@@ -78,6 +78,7 @@ struct _name##_table_t { \
   _leaf_type leaf; \
   _leaf_type * (*lookup) (_key_type *); \
   _leaf_type * (*lookup_or_init) (_key_type *, _leaf_type *); \
+  _leaf_type * (*lookup_or_try_init) (_key_type *, _leaf_type *); \
   int (*update) (_key_type *, _leaf_type *); \
   int (*insert) (_key_type *, _leaf_type *); \
   int (*delete) (_key_type *); \
@@ -523,6 +524,21 @@ static int (*bpf_send_signal)(unsigned sig) = (void *)BPF_FUNC_send_signal;
 static long long (*bpf_tcp_gen_syncookie)(struct bpf_sock *sk, void *ip,
                                           int ip_len, void *tcp, int tcp_len) =
   (void *) BPF_FUNC_tcp_gen_syncookie;
+static int (*bpf_skb_output)(void *ctx, void *map, __u64 flags, void *data,
+                             __u64 size) =
+  (void *)BPF_FUNC_skb_output;
+static int (*bpf_probe_read_user)(void *dst, __u32 size,
+                                  const void *unsafe_ptr) =
+  (void *)BPF_FUNC_probe_read_user;
+static int (*bpf_probe_read_kernel)(void *dst, __u32 size,
+                                    const void *unsafe_ptr) =
+  (void *)BPF_FUNC_probe_read_kernel;
+static int (*bpf_probe_read_user_str)(void *dst, __u32 size,
+            const void *unsafe_ptr) =
+  (void *)BPF_FUNC_probe_read_user_str;
+static int (*bpf_probe_read_kernel_str)(void *dst, __u32 size,
+            const void *unsafe_ptr) =
+  (void *)BPF_FUNC_probe_read_kernel_str;
 
 /* llvm builtin functions that eBPF C program may use to
  * emit BPF_LD_ABS and BPF_LD_IND instructions
