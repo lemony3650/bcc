@@ -9,6 +9,7 @@
   - [openSUSE](#opensuse---binary)
   - [RHEL](#rhel---binary)
   - [Amazon Linux 1](#Amazon-Linux-1---Binary)
+  - [Amazon Linux 2](#Amazon-Linux-2---Binary)
 * [Source](#source)
   - [Debian](#debian---source)
   - [Ubuntu](#ubuntu---source)
@@ -118,7 +119,7 @@ sudo dnf install bcc
 
 **Note**: if you keep getting `Failed to load program: Operation not permitted` when
 trying to run the `hello_world.py` example as root then you might need to lift
-the so-called kernel lockdown (cf. 
+the so-called kernel lockdown (cf.
 [FAQ](https://github.com/iovisor/bcc/blob/c00d10d4552f647491395e326d2e4400f3a0b6c5/FAQ.txt#L24),
 [background article](https://gehrcke.de/2019/09/running-an-ebpf-program-may-require-lifting-the-kernel-lockdown)).
 
@@ -218,6 +219,15 @@ Use case 2. Install BCC for your AMI's default kernel (no reboot required):
 ```
 sudo yum install kernel-headers-$(uname -r | cut -d'.' -f1-5)
 sudo yum install kernel-devel-$(uname -r | cut -d'.' -f1-5)
+sudo yum install bcc
+```
+
+## Amazon Linux 2 - Binary
+Use case 1. Install BCC for your AMI's default kernel (no reboot required):
+   Tested on Amazon Linux AMI release 2020.03 (kernel 4.14.154-128.181.amzn2.x86_64)
+```
+sudo amazon-linux-extras enable BCC
+sudo yum install kernel-devel-$(uname -r)
 sudo yum install bcc
 ```
 
@@ -352,12 +362,18 @@ sudo apt-get -y install luajit luajit-5.1-dev
 ```
 
 ### Install and compile BCC
+
 ```
 git clone https://github.com/iovisor/bcc.git
 mkdir bcc/build; cd bcc/build
-cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+cmake ..
 make
 sudo make install
+cmake -DPYTHON_CMD=python3 .. # build python3 binding
+pushd src/python/
+make
+sudo make install
+popd
 ```
 
 ## Fedora - Source
@@ -393,7 +409,7 @@ sudo dnf install -y clang clang-devel llvm llvm-devel llvm-static ncurses-devel
 ```
 git clone https://github.com/iovisor/bcc.git
 mkdir bcc/build; cd bcc/build
-cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+cmake ..
 make
 sudo make install
 ```
@@ -414,8 +430,7 @@ sudo zypper in lua51-luajit-devel # for lua support in openSUSE Tumbleweed
 ```
 git clone https://github.com/iovisor/bcc.git
 mkdir bcc/build; cd bcc/build
-cmake -DCMAKE_INSTALL_PREFIX=/usr \
-      -DLUAJIT_INCLUDE_DIR=`pkg-config --variable=includedir luajit` \ # for lua support
+cmake -DLUAJIT_INCLUDE_DIR=`pkg-config --variable=includedir luajit` \ # for lua support
       ..
 make
 sudo make install
@@ -455,13 +470,13 @@ mkdir llvm-build
 
 cd llvm-build
 cmake3 -G "Unix Makefiles" -DLLVM_TARGETS_TO_BUILD="BPF;X86" \
-  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ../llvm-7.0.1.src
+  -DCMAKE_BUILD_TYPE=Release ../llvm-7.0.1.src
 make
 sudo make install
 
 cd ../clang-build
 cmake3 -G "Unix Makefiles" -DLLVM_TARGETS_TO_BUILD="BPF;X86" \
-  -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ../cfe-7.0.1.src
+  -DCMAKE_BUILD_TYPE=Release ../cfe-7.0.1.src
 make
 sudo make install
 cd ..
@@ -483,7 +498,7 @@ For permanently enable scl environment, please check https://access.redhat.com/s
 ```
 git clone https://github.com/iovisor/bcc.git
 mkdir bcc/build; cd bcc/build
-cmake .. -DCMAKE_INSTALL_PREFIX=/usr
+cmake ..
 make
 sudo make install
 ```
@@ -516,7 +531,7 @@ tar xf clang*
 git clone https://github.com/iovisor/bcc.git
 pushd .
 mkdir bcc/build; cd bcc/build
-cmake3 .. -DCMAKE_INSTALL_PREFIX=/usr
+cmake3 ..
 time make
 sudo make install
 popd

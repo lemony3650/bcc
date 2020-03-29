@@ -16,6 +16,8 @@ This guide is incomplete. If something feels missing, check the bcc and kernel s
         - [6. USDT probes](#6-usdt-probes)
         - [7. Raw Tracepoints](#7-raw-tracepoints)
         - [8. system call tracepoints](#8-system-call-tracepoints)
+        - [9. kfuncs](#9-kfuncs)
+        - [10. kretfuncs](#9-kretfuncs)
     - [Data](#data)
         - [1. bpf_probe_read()](#1-bpf_probe_read)
         - [2. bpf_probe_read_str()](#2-bpf_probe_read_str)
@@ -45,16 +47,18 @@ This guide is incomplete. If something feels missing, check the bcc and kernel s
         - [10. BPF_DEVMAP](#10-bpf_devmap)
         - [11. BPF_CPUMAP](#11-bpf_cpumap)
         - [12. BPF_XSKMAP](#12-bpf_xskmap)
-        - [13. map.lookup()](#13-maplookup)
-        - [14. map.lookup_or_try_init()](#14-maplookup_or_try_init)
-        - [15. map.delete()](#15-mapdelete)
-        - [16. map.update()](#16-mapupdate)
-        - [17. map.insert()](#17-mapinsert)
-        - [18. map.increment()](#18-mapincrement)
-        - [19. map.get_stackid()](#19-mapget_stackid)
-        - [20. map.perf_read()](#20-mapperf_read)
-        - [21. map.call()](#21-mapcall)
-        - [22. map.redirect_map()](#22-mapredirect_map)
+        - [13. BPF_ARRAY_OF_MAPS](#13-bpf_array_of_maps)
+        - [14. BPF_HASH_OF_MAPS](#14-bpf_hash_of_maps)
+        - [15. map.lookup()](#15-maplookup)
+        - [16. map.lookup_or_try_init()](#16-maplookup_or_try_init)
+        - [17. map.delete()](#17-mapdelete)
+        - [18. map.update()](#18-mapupdate)
+        - [19. map.insert()](#19-mapinsert)
+        - [20. map.increment()](#20-mapincrement)
+        - [21. map.get_stackid()](#21-mapget_stackid)
+        - [22. map.perf_read()](#22-mapperf_read)
+        - [23. map.call()](#23-mapcall)
+        - [24. map.redirect_map()](#24-mapredirect_map)
     - [Licensing](#licensing)
 
 - [bcc Python](#bcc-python)
@@ -314,6 +318,50 @@ b.attach_kprobe(event=execve_fnname, fn_name="syscall__execve")
 
 Examples in situ:
 [code](https://github.com/iovisor/bcc/blob/552658edda09298afdccc8a4b5e17311a2d8a771/tools/execsnoop.py#L101) ([output](https://github.com/iovisor/bcc/blob/552658edda09298afdccc8a4b5e17311a2d8a771/tools/execsnoop_example.txt#L8))
+
+### 9. kfuncs
+
+Syntax: KFUNC_PROBE(*function*, typeof(arg1) arg1, typeof(arg2) arge ...)
+
+This is a macro that instruments the kernel function via trampoline
+*before* the function is executed. It's defined by *function* name and
+the function arguments defined as *argX*.
+
+For example:
+```C
+KFUNC_PROBE(do_sys_open, int dfd, const char *filename, int flags, int mode)
+{
+    ...
+```
+
+This instruments the do_sys_open kernel function and make its arguments
+accessible as standard argument values.
+
+Examples in situ:
+[search /tools](https://github.com/iovisor/bcc/search?q=KFUNC_PROBE+path%3Atools&type=Code)
+
+### 10. kretfuncs
+
+Syntax: KRETFUNC_PROBE(*event*, typeof(arg1) arg1, typeof(arg2) arge ..., int ret)
+
+This is a macro that instruments the kernel function via trampoline
+*after* the function is executed. It's defined by *function* name and
+the function arguments defined as *argX*.
+
+The last argument of the probe is the return value of the instrumented function.
+
+For example:
+```C
+KFUNC_PROBE(do_sys_open, int dfd, const char *filename, int flags, int mode, int ret)
+{
+    ...
+```
+
+This instruments the do_sys_open kernel function and make its arguments
+accessible as standard argument values together with its return value.
+
+Examples in situ:
+[search /tools](https://github.com/iovisor/bcc/search?q=KRETFUNC_PROBE+path%3Atools&type=Code)
 
 
 ## Data
