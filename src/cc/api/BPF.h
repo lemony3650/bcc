@@ -85,7 +85,9 @@ class BPF {
                             pid_t pid = -1,
                             uint64_t symbol_offset = 0);
   StatusTuple attach_usdt(const USDT& usdt, pid_t pid = -1);
+  StatusTuple attach_usdt_all();
   StatusTuple detach_usdt(const USDT& usdt, pid_t pid = -1);
+  StatusTuple detach_usdt_all();
 
   StatusTuple attach_tracepoint(const std::string& tracepoint,
                                 const std::string& probe_func);
@@ -248,6 +250,9 @@ class BPF {
   std::string get_uprobe_event(const std::string& binary_path, uint64_t offset,
                                bpf_probe_attach_type type, pid_t pid);
 
+  StatusTuple attach_usdt_without_validation(const USDT& usdt, pid_t pid);
+  StatusTuple detach_usdt_without_validation(const USDT& usdt, pid_t pid);
+
   StatusTuple detach_kprobe_event(const std::string& event, open_probe_t& attr);
   StatusTuple detach_uprobe_event(const std::string& event, open_probe_t& attr);
   StatusTuple detach_tracepoint_event(const std::string& tracepoint,
@@ -324,6 +329,12 @@ class USDT {
        const std::string& name, const std::string& probe_func);
   USDT(const USDT& usdt);
   USDT(USDT&& usdt) noexcept;
+
+  const std::string &binary_path() const { return binary_path_; }
+  pid_t pid() const { return pid_; }
+  const std::string &provider() const { return provider_; }
+  const std::string &name() const { return name_; }
+  const std::string &probe_func() const { return probe_func_; }
 
   StatusTuple init();
 
